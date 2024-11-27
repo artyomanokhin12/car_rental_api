@@ -4,10 +4,14 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
+import alembic_postgresql_enum
 
 from app.database import Base
 from app.users.models import Users
 from app.cars.models import Cars
+from app.bookings.models import Bookings
+from app.locations.models import Locations
+from app.reviews.models import Reviews
 from app.settings import settings
 
 # this is the Alembic Config object, which provides
