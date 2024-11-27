@@ -3,3 +3,4 @@
 alembic.ini
 .env
 app/migrations/script.py.mako
+certs/

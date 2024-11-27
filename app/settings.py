@@ -1,4 +1,14 @@
+from pathlib import Path
+from pydantic import BaseModel
 from pydantic_settings import BaseSettings
+
+BASE_DIR = Path(__file__).parent.parent
+
+
+class AuthJWT(BaseModel):
+	
+	private_key: Path = BASE_DIR / 'certs' / 'jwt-private.pem'
+	public_key: Path = BASE_DIR / 'certs' / 'jwt-public.pem'
 
 
 class Settings(BaseSettings):
@@ -15,6 +25,8 @@ class Settings(BaseSettings):
 
 	REDIS_HOST: str
 	REDIS_PORT: str
+
+	AUTH_JWT: AuthJWT = AuthJWT()
 
 
 	class Config:
