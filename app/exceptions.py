@@ -12,3 +12,12 @@ class CarRentalException(HTTPException):
 class AuthentificateError(CarRentalException):
 	status_code = status.HTTP_401_UNAUTHORIZED
 	detail = 'Mail does not exist or password is incorrect'
+
+
+class InvalidTokenError(CarRentalException):
+	status_code = status.HTTP_401_UNAUTHORIZED
+	detail = 'Token invalid'
+
+
+class UserIsNotPresentException(CarRentalException):
+	status_code = status.HTTP_401_UNAUTHORIZED

@@ -1,8 +1,12 @@
 from datetime import UTC, datetime, timedelta
+from re import X
 import bcrypt
+from fastapi import Depends, Request, Response
+from httpx import request
 import jwt
+from pydantic import EmailStr
 
-from app.exceptions import AuthentificateError
+from app.exceptions import AuthentificateError, InvalidTokenError, UserIsNotPresentException
 from app.users.models import Users
 from app.users.queries import UsersQueries
 from app.users.schemas import SUserAuth
@@ -11,6 +15,8 @@ from app.settings import settings
 TOKEN_TYPE_FIELD = 'type'
 ACCESS_TOKEN_TYPE = 'access'
 REFRESH_TOKEN_TYPE = 'refresh'
+ACCESS_TOKEN_NAME = 'car_rental_access_token'
+REFRESH_TOKEN_NAME = 'car_rental_refresh_token'
 
 
 def hash_password(
@@ -83,7 +89,7 @@ def create_token(
 
 def create_access_token(user: Users) -> str:
 	payload = {
-		'sub': user.email,
+		'sub': str(user.id),
 		'first_name': user.first_name,
 		'last_name': user.last_name,
 		'email': user.email
@@ -96,9 +102,49 @@ def create_access_token(user: Users) -> str:
 
 
 def create_refresh_token(user: Users) -> str:
-	payload = {'sub': user.email}
+	payload = {
+		'sub': str(user.id),
+		'email': user.email
+	}
 	return create_token(
 		payload,
 		REFRESH_TOKEN_TYPE,
 		expire_timedelta=timedelta(days=settings.AUTH_JWT.refresh_token_expire_days)
 	)
+
+
+def get_token_payload(token: str, token_name: str) -> dict:
+	try:
+		payload: dict = decode_jwt(token)
+	except jwt.InvalidTokenError:
+		if token_name == ACCESS_TOKEN_NAME:
+			return None
+		raise InvalidTokenError
+	return payload
+
+
+def validate_token(request: Request):
+	access_token = request.cookies.get(ACCESS_TOKEN_NAME)
+	payload = get_token_payload(access_token, ACCESS_TOKEN_NAME)
+	if not payload:
+		refresh_token = request.cookies.get(REFRESH_TOKEN_NAME)
+		payload = get_token_payload(refresh_token, REFRESH_TOKEN_NAME)
+	return payload
+
+
+async def create_new_access_and_refresh_token(response: Response, user: Users):
+	access_token = create_access_token(user)
+	refresh_token = create_refresh_token(user)
+	response.set_cookie(ACCESS_TOKEN_NAME, access_token, httponly=True)
+	response.set_cookie(REFRESH_TOKEN_NAME, refresh_token, httponly=True)
+
+
+async def get_current_user(response: Response, payload: dict = Depends(validate_token)) -> Users:
+	user_id = payload.get('sub')
+	email: EmailStr = payload.get('email')
+	if not (user := await UsersQueries.find_one_or_none(id=int(user_id), email=email)):
+		raise UserIsNotPresentException
+	token_type: str = payload.get(TOKEN_TYPE_FIELD)
+	if token_type != ACCESS_TOKEN_TYPE:
+		await create_new_access_and_refresh_token(response, user=user)
+	return user
