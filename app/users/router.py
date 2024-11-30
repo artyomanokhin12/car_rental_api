@@ -4,7 +4,7 @@ from app.exceptions import AuthentificateError
 from app.users import utils
 from app.users.models import Users
 from app.users.queries import UsersQueries
-from app.users.schemas import SUserAuth, SUserRegister
+from app.users.schemas import SUserAuth, SUserRegister, SUserResponse
 from app.users.utils import create_access_token, create_refresh_token, get_current_user, hash_password, validate_auth_user
 
 router = APIRouter(
@@ -29,7 +29,7 @@ async def register_user(user_data: SUserRegister):
 	
 
 @router.post('/login')
-async def user_login(response: Response, user: Users = Depends(validate_auth_user)):
+async def user_login(response: Response, user: Users = Depends(validate_auth_user)) -> SUserResponse:
 	access_token = create_access_token(user)
 	refresh_token = create_refresh_token(user)
 	response.set_cookie(utils.ACCESS_TOKEN_NAME, access_token, httponly=True)
@@ -45,9 +45,5 @@ async def logout_user(response: Response):
 
 
 @router.get('/me')
-async def read_users_me(current_user: Users = Depends(get_current_user)):
-	return {
-		'email': current_user.email,
-		'first_name': current_user.first_name,
-		'last_name': current_user.last_name
-	}
+async def read_users_me(current_user: Users = Depends(get_current_user)) -> SUserResponse:
+	return current_user
