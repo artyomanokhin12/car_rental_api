@@ -10,6 +10,7 @@ from app.database import Base
 class Status(enum.Enum):
 
 	pending = 'pending'
+	in_process = 'in_process'
 	confirmed = 'confirmed'
 	canceled = 'canceled'
 
