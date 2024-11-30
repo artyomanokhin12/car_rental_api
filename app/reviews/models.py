@@ -9,5 +9,6 @@ class Reviews(Base):
 
 	id: Mapped[int] = mapped_column(primary_key=True)
 	booking_id: Mapped[int] = mapped_column(ForeignKey('bookings.id', ondelete='CASCADE'))
+	user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='SET NULL'))
 	rating: Mapped[int]
 	comment: Mapped[str | None]
