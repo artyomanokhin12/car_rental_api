@@ -20,6 +20,7 @@ class Cars(Base):
 	model: Mapped[str]
 	brand: Mapped[str]
 	category: Mapped[Category]
+	quantity: Mapped[int]
 	description: Mapped[str | None]
 	price_per_day: Mapped[int]
 	image_url: Mapped[str | None]
