@@ -23,4 +23,4 @@ class Cars(Base):
 	description: Mapped[str | None]
 	price_per_day: Mapped[int]
 	image_url: Mapped[str | None]
-	locatioon_id: Mapped[int] = mapped_column(ForeignKey('locations.id', ondelete='SET NULL'))
+	location_id: Mapped[int] = mapped_column(ForeignKey('locations.id', ondelete='SET NULL'))
