@@ -18,3 +18,9 @@ async def get_all_cars(
 ) -> list[CarsResponse]:
 	cars = await CarsQueries.find_all_by_filters(**(data.model_dump()))
 	return cars
+
+
+@router.get('/{id}')
+async def get_car_info_by_id(id: int) -> CarsResponse:
+	car = await CarsQueries.find_by_id(id)
+	return car
