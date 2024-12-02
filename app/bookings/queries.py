@@ -2,6 +2,7 @@ from datetime import date, timedelta
 from sqlalchemy import and_, func, insert, or_, select, update
 from app.cars.models import Cars
 from app.database import async_session_maker
+from app.exceptions import CancelBookingError
 from app.queries.base import BaseQueries
 from app.bookings.models import Bookings, Status
 from app.users.models import Users
@@ -61,7 +62,7 @@ class BookingsQueries(BaseQueries):
 						start_date=start_date,
 						end_date=end_date,
 						total_price=total_price,
-						status=Status.in_process.value,
+						status=Status.pending.value,
 					)
 					.returning(Bookings)
 				)
@@ -74,11 +75,17 @@ class BookingsQueries(BaseQueries):
 	@classmethod
 	async def cancel_booking(cls, user: Users, booking_id: int):
 		async with async_session_maker() as session:
-			stmt = (
-				update(Bookings)
-				.filter_by(id=booking_id, user_id=user.id)
-				.values(status=Status.canceled.value)
-			)
-			await session.execute(stmt)
-			await session.commit()
+			get_current_status = select(Bookings.status).filter_by(id=booking_id)
+			result = await session.execute(get_current_status)
+			get_current_status = result.scalar()
+			if get_current_status == Status.pending.value:
+				stmt = (
+					update(Bookings)
+					.filter_by(id=booking_id, user_id=user.id)
+					.values(status=Status.canceled.value)
+				)
+				await session.execute(stmt)
+				await session.commit()
+			else:
+				raise CancelBookingError
 	

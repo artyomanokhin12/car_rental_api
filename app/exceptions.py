@@ -41,3 +41,8 @@ class DateFromCannotBeAfterDateTo(CarRentalException):
 class LargePeriodError(CarRentalException):
 	status_code = status.HTTP_400_BAD_REQUEST
 	detail = 'Too long a period to rent'
+
+
+class CancelBookingError(CarRentalException):
+	status_code = status.HTTP_400_BAD_REQUEST
+	detail = 'You cannot cancel an order with this status'
