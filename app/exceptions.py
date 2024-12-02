@@ -27,6 +27,17 @@ class ReevaluationError(CarRentalException):
 	status_code = status.HTTP_409_CONFLICT
 	detail = 'The estimate for this order has already been placed'
 
+
 class EstimateOnOrderInProcess(CarRentalException):
 	status_code = status.HTTP_409_CONFLICT
 	detail = "Can't put a grade on an order with this status"
+
+
+class DateFromCannotBeAfterDateTo(CarRentalException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    detail = 'The start date of the lease cannot be later than the end date of the lease'
+
+
+class LargePeriodError(CarRentalException):
+	status_code = status.HTTP_400_BAD_REQUEST
+	detail = 'Too long a period to rent'
