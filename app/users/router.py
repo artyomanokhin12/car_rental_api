@@ -5,7 +5,7 @@ from app.users import utils
 from app.users.models import Users
 from app.users.queries import UsersQueries
 from app.users.schemas import SUserAuth, SUserRegister, SUserResponse
-from app.users.utils import create_access_token, create_refresh_token, get_current_user, hash_password, validate_auth_user
+from app.users.utils import create_access_token, create_new_access_and_refresh_token, create_refresh_token, get_current_user, hash_password, validate_auth_user
 
 router = APIRouter(
 	prefix='/users',
@@ -30,10 +30,7 @@ async def register_user(user_data: SUserRegister):
 
 @router.post('/login')
 async def user_login(response: Response, user: Users = Depends(validate_auth_user)) -> SUserResponse:
-	access_token = create_access_token(user)
-	refresh_token = create_refresh_token(user)
-	response.set_cookie(utils.ACCESS_TOKEN_NAME, access_token, httponly=True)
-	response.set_cookie(utils.REFRESH_TOKEN_NAME, refresh_token, httponly=True)
+	await create_new_access_and_refresh_token(response, user)
 	return user
 
 
