@@ -1,10 +1,11 @@
 from datetime import date, datetime, timedelta
-from typing import Annotated
+from typing import Annotated, List
 from fastapi import APIRouter, Query
 
 from app.cars.models import Cars, Category
 from app.cars.queries import CarsQueries
 from app.cars.schemas import CarsRequest, CarsResponse
+from pydantic import TypeAdapter
 
 router = APIRouter(
 	prefix='/cars',
