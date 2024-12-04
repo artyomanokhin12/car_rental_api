@@ -7,4 +7,3 @@ class Locations(Base):
 
 	id: Mapped[int] = mapped_column(primary_key=True)
 	city: Mapped[str]
-	address: Mapped[str]
