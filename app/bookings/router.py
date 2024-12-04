@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query
 
 from app.bookings.models import Status
 from app.bookings.queries import BookingsQueries
-from app.bookings.schemas import NewBookingCar
+from app.bookings.schemas import BookingsResponse, NewBookingCar
 from app.exceptions import DateFromCannotBeAfterDateTo, LargePeriodError
 from app.users.models import Users
 from app.users.utils import get_current_user
@@ -14,7 +14,9 @@ router = APIRouter(
 
 
 @router.get('')
-async def get_all_users_bookings(user: Users = Depends(get_current_user)):
+async def get_all_users_bookings(
+	user: Users = Depends(get_current_user)
+) -> list[BookingsResponse]:
 	all_bookings = await BookingsQueries.find_all_by_filters(user_id=user.id)
 	return all_bookings
 
@@ -23,7 +25,7 @@ async def get_all_users_bookings(user: Users = Depends(get_current_user)):
 async def add_new_booking(
 	BookingData: NewBookingCar = Query(), 
 	user: Users = Depends(get_current_user)
-):
+) -> BookingsResponse:
 	if BookingData.end_date < BookingData.start_date:
 		raise DateFromCannotBeAfterDateTo
 	elif (BookingData.end_date - BookingData.start_date).days > 30:
