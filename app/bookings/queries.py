@@ -89,3 +89,34 @@ class BookingsQueries(BaseQueries):
 			else:
 				raise CancelBookingError
 	
+
+	@classmethod
+	async def change_status(cls, user: Users, booking_id: int, new_status: Status):
+		async with async_session_maker() as session:
+			current_booking_status = select(Bookings.status).filter_by(id=booking_id, user_id=user.id)
+			result = await session.execute(current_booking_status)
+			current_booking_status = result.scalar()
+			print(current_booking_status)
+			print(new_status)
+			if (
+				(
+					current_booking_status == Status.in_process
+					and 
+					new_status == Status.confirmed
+				)
+				or
+				(
+					current_booking_status == Status.pending
+					and
+					new_status == Status.in_process
+				)
+			):
+				stmt = (
+					update(Bookings)
+					.where(Bookings.id==booking_id)
+					.values(status=new_status)
+				)
+				await session.execute(stmt)
+				await session.commit()
+			else:
+				raise CancelBookingError

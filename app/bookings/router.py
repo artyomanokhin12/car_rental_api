@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 
+from app.bookings.models import Status
 from app.bookings.queries import BookingsQueries
 from app.bookings.schemas import NewBookingCar
 from app.exceptions import DateFromCannotBeAfterDateTo, LargePeriodError
@@ -37,6 +38,11 @@ async def cancel_booking(booking_id: int, user: Users = Depends(get_current_user
 	return 'Бронирование отменено'
 
 
-@router.post('/update/{booking_id}')
-async def update_booking_status(booking_id: int, user: Users = Depends(get_current_user)):
-	...
+@router.post('/status/{boooking_id}')
+async def change_booking_status(
+	booking_id: int,
+	status: Status,
+	user: Users = Depends(get_current_user)
+):
+	await BookingsQueries.change_status(user, booking_id, status)
+	return 'Статус успешно изменен'
