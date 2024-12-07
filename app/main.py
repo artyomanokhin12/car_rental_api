@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from app.bookings.router import router as bookings_router
 from app.cars.router import router as cars_router
@@ -13,3 +14,6 @@ api.include_router(router=bookings_router)
 api.include_router(router=reviews_router)
 api.include_router(router=users_router)
 api.include_router(router=page_user_router)
+
+
+api.mount("/static", StaticFiles(directory="app/static"), "static")
