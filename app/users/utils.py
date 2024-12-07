@@ -1,7 +1,8 @@
 from datetime import UTC, datetime, timedelta
 from re import X
+from typing import Annotated
 import bcrypt
-from fastapi import Depends, Request, Response
+from fastapi import Depends, Form, Request, Response
 from httpx import request
 import jwt
 from pydantic import EmailStr
@@ -34,7 +35,7 @@ def validate_password(
 	return bcrypt.checkpw(user_password.encode(), hashed_password)
 
 
-async def validate_auth_user(user_data: SUserAuth) -> Users:
+async def validate_auth_user(user_data: Annotated[SUserAuth, Form()]) -> Users:
 	user: Users = await UsersQueries.find_one_or_none(email=user_data.email)
 	if not user:
 		raise AuthentificateError
