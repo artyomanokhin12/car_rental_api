@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block head %}
+Профиль
+{% endblock %}
+
+{% block body %}
+<div>
+	<h2>{{user.first_name}} {{user.last_name}}</h2>
+</div>
+<li>{{user.email}}</li>
+{% endblock %}
