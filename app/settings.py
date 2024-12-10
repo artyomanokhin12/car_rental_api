@@ -29,10 +29,19 @@ class Settings(BaseSettings):
 	REDIS_HOST: str
 	REDIS_PORT: str
 
-	AUTH_JWT: AuthJWT = AuthJWT()
+	SMTP_HOST: str
+	SMTP_PORT: str
+	SMTP_USER: str
+	SMTP_PASS: str
 
+	AUTH_JWT: AuthJWT = AuthJWT()
 
 	class Config:
 		env_file = '.env'
 
 settings = Settings()
+
+
+if __name__ == '__main__':
+	print(settings.SMTP_HOST)
+	print(settings.SMTP_PORT)

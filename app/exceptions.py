@@ -46,3 +46,8 @@ class LargePeriodError(CarRentalException):
 class CancelBookingError(CarRentalException):
 	status_code = status.HTTP_400_BAD_REQUEST
 	detail = 'You cannot cancel an order with this status'
+
+
+class CarsFullyBooked(CarRentalException):
+	status_code = status.HTTP_409_CONFLICT
+	detail = 'There are no cars left'
