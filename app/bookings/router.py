@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, Query
+from pydantic import TypeAdapter, parse_obj_as
 
-from app.bookings.models import Status
+from app.bookings.models import Bookings, Status
 from app.bookings.queries import BookingsQueries
 from app.bookings.schemas import BookingsResponse, NewBookingCar
 from app.exceptions import DateFromCannotBeAfterDateTo, LargePeriodError
+from app.tasks.tasks import send_booking_confirmation_email
 from app.users.models import Users
 from app.users.utils import get_current_user
 
@@ -30,8 +32,10 @@ async def add_new_booking(
 		raise DateFromCannotBeAfterDateTo
 	elif (BookingData.end_date - BookingData.start_date).days > 30:
 		raise LargePeriodError
-	new_booking = await BookingsQueries.add_new_booking(user=user, **BookingData.model_dump())
-	return new_booking
+	new_booking: Bookings = await BookingsQueries.add_new_booking(user=user, **BookingData.model_dump())
+	booking_json = TypeAdapter(BookingsResponse).validate_python(new_booking).model_dump()
+	send_booking_confirmation_email(booking_json, user.email)
+	return booking_json
 
 
 @router.post('/cancel/{booking_id}')

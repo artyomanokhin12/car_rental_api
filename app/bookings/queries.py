@@ -2,7 +2,7 @@ from datetime import date, timedelta
 from sqlalchemy import and_, func, insert, or_, select, update
 from app.cars.models import Cars
 from app.database import async_session_maker
-from app.exceptions import CancelBookingError
+from app.exceptions import CancelBookingError, CarsFullyBooked
 from app.queries.base import BaseQueries
 from app.bookings.models import Bookings, Status
 from app.users.models import Users
@@ -50,6 +50,7 @@ class BookingsQueries(BaseQueries):
 			result = await session.execute(get_free_cars)
 			free_cars: int = result.scalar()
 
+		try:
 			if free_cars > 0:
 				total_price = select(Cars.price_per_day).filter_by(id=car_id)
 				result = await session.execute(total_price)
@@ -70,7 +71,10 @@ class BookingsQueries(BaseQueries):
 				await session.commit()
 				return new_booking.scalar()
 			else:
-				return 'На данный момент свободных машин нет'
+				raise CarsFullyBooked
+		except CarsFullyBooked:
+			raise CarsFullyBooked
+
 			
 	@classmethod
 	async def cancel_booking(cls, user: Users, booking_id: int):

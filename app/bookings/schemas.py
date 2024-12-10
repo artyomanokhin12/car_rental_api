@@ -14,7 +14,7 @@ class NewBookingCar(BaseModel):
 
 class BookingsResponse(BaseModel):
 
-	model_config = ConfigDict(extra='forbid')
+	model_config = ConfigDict(extra='forbid', from_attributes=True)
 
 	id: int
 	car_id: int
