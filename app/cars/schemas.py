@@ -9,12 +9,16 @@ class CarsResponse(BaseModel):
 
 	brand: str
 	model: str
-	category: Category
-	description: str | None
-	price_per_day: int
 	location_id: int
 	quantity: int
 	available: int | str = Query('all cars')
+
+
+class DetailCarResponse(CarsResponse):
+
+	category: Category
+	description: str | None
+	price_per_day: int
 
 
 class CarsRequest(BaseModel):
