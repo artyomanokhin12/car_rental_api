@@ -11,3 +11,6 @@ class Users(Base):
 	hashed_password: Mapped[bytes]
 	first_name: Mapped[str]
 	last_name: Mapped[str]
+
+	def __repr__(self) -> str:
+		return f'{self.first_name} {self.last_name}'

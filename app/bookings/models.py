@@ -2,9 +2,11 @@ from datetime import date
 import enum
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+from app.users.models import Users
+from app.cars.models import Cars
 
 
 class Status(enum.Enum):
@@ -25,3 +27,9 @@ class Bookings(Base):
 	end_date: Mapped[date]
 	total_price: Mapped[int]
 	status: Mapped[Status]
+
+	users: Mapped['Users'] = relationship()
+	cars: Mapped['Cars'] = relationship()
+
+	def __repr__(self):
+		return f'Бронирование: {self.id}'
